@@ -1,3 +1,6 @@
+// Store per mantenere l'ultimo evento
+let lastEvent = null;
+
 module.exports = (req, res) => {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,13 +13,14 @@ module.exports = (req, res) => {
     }
 
     if (req.method === 'GET') {
-        // Return some mock data for testing
-        return res.status(200).json({
-            type: 'boom',
-            message: 'Test event',
-            advisor: 'Test Advisor',
-            client: 'Test Client'
-        });
+        // Restituisci l'ultimo evento se disponibile, altrimenti nessun nuovo evento
+        if (lastEvent) {
+            const event = lastEvent;
+            lastEvent = null; // Reset dopo la lettura
+            return res.status(200).json(event);
+        } else {
+            return res.status(204).end(); // No Content - nessun nuovo evento
+        }
     }
 
     if (req.method === 'POST') {
@@ -25,10 +29,16 @@ module.exports = (req, res) => {
             console.log("Dati ricevuti:", eventData);
 
             // Verifica che i campi richiesti siano presenti
-            if (!eventData.message || !eventData.advisor || !eventData.type) {
+            if (!eventData.type || !eventData.advisor || 
+                (eventData.type === 'boom' && !eventData.client) || 
+                (eventData.type === 'appointment' && (!eventData.user || !eventData.advisor)) || 
+                (eventData.type === 'lead' && !eventData.user)) {
                 console.log("Errore: Manca un campo richiesto");
                 return res.status(400).send('Bad Request: Missing required fields');
             }
+
+            // Salva l'evento per la prossima richiesta GET
+            lastEvent = eventData;
 
             // Risposta positiva
             res.status(200).json(eventData);

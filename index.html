@@ -150,11 +150,23 @@
     // Funzione per ottenere i dati dal webhook
     function fetchWebhookData() {
       fetch('https://audio-sable.vercel.app/api/webhook') // GET al webhook
-        .then(response => response.json())  // Parse JSON dalla risposta
-        .then(data => {
-          updateDashboard(data);  // Quando i dati sono ricevuti, aggiorna la dashboard
+        .then(response => {
+          if (response.status === 204) {
+            // Nessun nuovo evento
+            return null;
+          }
+          return response.json(); // Parse JSON dalla risposta
         })
-        .catch(error => console.error('Errore durante il fetch dei dati dal webhook:', error));
+        .then(data => {
+          if (data) {
+            updateDashboard(data);  // Quando ci sono nuovi dati, aggiorna la dashboard
+          }
+        })
+        .catch(error => console.error('Errore durante il fetch dei dati dal webhook:', error))
+        .finally(() => {
+          // Programma il prossimo controllo tra 2 secondi
+          setTimeout(fetchWebhookData, 2000);
+        });
     }
 
     // Funzione per aggiornare la dashboard con i dati ricevuti
