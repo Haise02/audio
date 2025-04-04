@@ -103,6 +103,9 @@
   <!-- Banner di notifica -->
   <div id="banner"></div>
 
+  <!-- Audio per il suono boom -->
+  <audio id="boomSound" src="slot-machine-coin-payout-1-188227.mp3"></audio>
+
   <!-- Le altre informazioni sulla dashboard -->
   <div class="dashboard">
     <div class="box boom">
@@ -157,15 +160,21 @@
     // Funzione per aggiornare la dashboard con i dati ricevuti
     function updateDashboard(event) {
       if (event.type === 'boom' || event.type === 'appointment' || event.type === 'lead') {
-        let message = `Nuovo evento di tipo ${event.type}: ${event.message}`;
-        showBanner(message);  // Mostra il messaggio nel banner
-
         // Aggiorna la dashboard in base al tipo di evento
         if (event.type === 'boom') {
+          // Aggiorna i dati del boom
           document.getElementById('boom-client').innerText = event.client;
           document.getElementById('boom-advisor').innerText = event.advisor;
           let count = parseInt(document.getElementById('boom-count').innerText);
           document.getElementById('boom-count').innerText = count + 1;
+          
+          // Mostra il banner personalizzato per il boom
+          let message = `Boom ${event.client} da: ${event.advisor}`;
+          showBanner(message);
+          
+          // Riproduci il suono
+          const boomSound = document.getElementById('boomSound');
+          boomSound.play();
         }
 
         if (event.type === 'appointment') {
