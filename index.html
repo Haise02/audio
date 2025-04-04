@@ -158,25 +158,29 @@
           return response.json(); // Parse JSON dalla risposta
         })
         .then(data => {
-          if (data) {
-            updateDashboard(data);  // Quando ci sono nuovi dati, aggiorna la dashboard
+          console.log('Dati ricevuti dal webhook:', data);
+          if (data && data.data) { // Verifica se abbiamo dati validi nella risposta
+            updateDashboard(data.data);  // Passa i dati dell'evento
           }
         })
         .catch(error => console.error('Errore durante il fetch dei dati dal webhook:', error))
         .finally(() => {
-          // Programma il prossimo controllo tra 2 secondi
-          setTimeout(fetchWebhookData, 2000);
+          // Programma il prossimo controllo tra 1 secondo
+          setTimeout(fetchWebhookData, 1000);
         });
     }
 
     // Funzione per aggiornare la dashboard con i dati ricevuti
     function updateDashboard(event) {
-      if (event.type === 'boom' || event.type === 'appointment' || event.type === 'lead') {
+      console.log('Aggiornamento dashboard con evento:', event);
+      
+      if (event && event.type) {
         // Aggiorna la dashboard in base al tipo di evento
         if (event.type === 'boom') {
+          console.log('Processando evento boom');
           // Aggiorna i dati del boom
-          document.getElementById('boom-client').innerText = event.client;
-          document.getElementById('boom-advisor').innerText = event.advisor;
+          document.getElementById('boom-client').innerText = event.client || 'Cliente';
+          document.getElementById('boom-advisor').innerText = event.advisor || 'Advisor';
           let count = parseInt(document.getElementById('boom-count').innerText);
           document.getElementById('boom-count').innerText = count + 1;
           
@@ -186,7 +190,8 @@
           
           // Riproduci il suono
           const boomSound = document.getElementById('boomSound');
-          boomSound.play();
+          boomSound.currentTime = 0; // Riavvia il suono dall'inizio
+          boomSound.play().catch(e => console.error('Errore riproduzione audio:', e));
         }
 
         if (event.type === 'appointment') {
