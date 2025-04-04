@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DASHBOARD NEWS</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #1a1a1a;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 30px;
+      font-size: 36px;
+    }
+
+    .dashboard {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 50px;
+    }
+
+    .box {
+      background-color: black;
+      padding: 30px;
+      border-radius: 20px;
+      width: 300px;
+      min-height: 280px;
+    }
+
+    .boom {
+      border: 2px solid #f1b600;
+    }
+
+    .appuntamento {
+      border: 2px solid #00bfff;
+    }
+
+    .lead {
+      border: 2px solid #e5b9a8;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .name {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 40px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .footer span {
+      display: block;
+      font-size: 16px;
+      font-weight: normal;
+      margin-top: 8px;
+    }
+
+    .yellow { color: #f1b600; }
+    .blue { color: #00bfff; }
+    .beige { color: #e5b9a8; }
+
+    /* Stile per il banner */
+    #banner {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>DASHBOARD NEWS</h1>
+
+  <!-- Banner di notifica -->
+  <div id="banner"></div>
+
+  <!-- Le altre informazioni sulla dashboard -->
+  <div class="dashboard">
+    <div class="box boom">
+      <div class="title yellow">BOOM</div>
+      <div class="label">CLIENTE</div>
+      <div id="boom-client" class="name">Nome Cognome</div>
+      <div class="label">ADVISOR</div>
+      <div id="boom-advisor" class="name">Nome Cognome</div>
+    </div>
+
+    <div class="box appuntamento">
+      <div class="title blue">APPUNTAMENTO FISSATO</div>
+      <div class="label">UTENTE</div>
+      <div id="appt-user" class="name">Nome Cognome</div>
+      <div class="label">ADVISOR</div>
+      <div id="appt-advisor" class="name">Nome Cognome</div>
+    </div>
+
+    <div class="box lead">
+      <div class="title beige">LEAD UNICO</div>
+      <div class="label">UTENTE</div>
+      <div id="lead-user" class="name">Nome Cognome</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="yellow">
+      <div id="boom-count">0</div>
+      <span>Daily Boom</span>
+    </div>
+    <div class="blue">
+      <div id="appt-count">0</div>
+      <span>Daily App. Fissati</span>
+    </div>
+    <div class="beige">
+      <div id="lead-count">0</div>
+      <span>Daily Lead (unico)</span>
+    </div>
+  </div>
+
+  <script>
+    // Funzione per ottenere i dati dal webhook
+    function fetchWebhookData() {
+      fetch('https://audio-sable.vercel.app/api/webhook') // GET al webhook
+        .then(response => response.json())  // Parse JSON dalla risposta
+        .then(data => {
+          updateDashboard(data);  // Quando i dati sono ricevuti, aggiorna la dashboard
+        })
+        .catch(error => console.error('Errore durante il fetch dei dati dal webhook:', error));
+    }
+
+    // Funzione per aggiornare la dashboard con i dati ricevuti
+    function updateDashboard(event) {
+      if (event.type === 'boom' || event.type === 'appointment' || event.type === 'lead') {
+        let message = `Nuovo evento di tipo ${event.type}: ${event.message}`;
+        showBanner(message);  // Mostra il messaggio nel banner
+
+        // Aggiorna la dashboard in base al tipo di evento
+        if (event.type === 'boom') {
+          document.getElementById('boom-client').innerText = event.client;
+          document.getElementById('boom-advisor').innerText = event.advisor;
+          let count = parseInt(document.getElementById('boom-count').innerText);
+          document.getElementById('boom-count').innerText = count + 1;
+        }
+
+        if (event.type === 'appointment') {
+          document.getElementById('appt-user').innerText = event.user;
+          document.getElementById('appt-advisor').innerText = event.advisor;
+          let count = parseInt(document.getElementById('appt-count').innerText);
+          document.getElementById('appt-count').innerText = count + 1;
+        }
+
+        if (event.type === 'lead') {
+          document.getElementById('lead-user').innerText = event.user;
+          let count = parseInt(document.getElementById('lead-count').innerText);
+          document.getElementById('lead-count').innerText = count + 1;
+        }
+      }
+    }
+
+    // Funzione per mostrare il banner con il messaggio
+    function showBanner(message) {
+  const banner = document.getElementById('banner');
+  console.log('Mostrando il banner con il messaggio:', message);  // Aggiungi log per il messaggio
+  banner.innerText = message;  // Mostra l'intero messaggio nel banner
+  banner.style.display = 'block';  // Mostra il banner
+  setTimeout(() => {
+    banner.style.display = 'none';  // Nasconde il banner dopo 20 secondi
+  }, 20000); // 20 secondi
+}
+
+    // Esegui la funzione per testare i dati dal webhook (questo sarà attivato da Zapier)
+    fetchWebhookData();
+  </script>
+</body>
+</html>
