@@ -13,55 +13,38 @@ module.exports = (req, res) => {
     }
 
     if (req.method === 'GET') {
-        // Restituisci l'ultimo evento se disponibile, altrimenti nessun nuovo evento
+        // Restituisci l'ultimo evento se disponibile
         if (lastEvent) {
             const event = lastEvent;
             lastEvent = null; // Reset dopo la lettura
             return res.status(200).json(event);
         } else {
-            return res.status(204).end(); // No Content - nessun nuovo evento
+            return res.status(204).end(); // No Content
         }
     }
 
     if (req.method === 'POST') {
         try {
-            // Log delle intestazioni per debug
-            console.log('Headers ricevuti:', req.headers);
-            console.log('Content-Type:', req.headers['content-type']);
-            
             const eventData = req.body;
-            console.log('Dati ricevuti (raw):', JSON.stringify(eventData, null, 2));
+            console.log('Dati ricevuti:', eventData);
 
-            // Se non c'è un tipo specificato, assumiamo che sia un boom
-            if (!eventData.type) {
-                eventData.type = 'boom';
-            }
-
-            // Assicuriamoci che i campi necessari esistano
-            if (!eventData.advisor) eventData.advisor = 'Advisor';
-            if (!eventData.client) eventData.client = eventData.message || 'Cliente';
-
-            // Log dei dati processati
-            console.log('Dati processati:', JSON.stringify(eventData, null, 2));
+            // Crea l'evento boom
+            const boomEvent = {
+                type: 'boom',
+                client: eventData.message || 'Cliente',
+                advisor: 'Advisor'
+            };
 
             // Salva l'evento per la prossima richiesta GET
-            lastEvent = eventData;
+            lastEvent = boomEvent;
+            console.log('Evento salvato:', boomEvent);
 
-            // Risposta positiva
-            return res.status(200).json({
-                status: 'success',
-                message: 'Evento ricevuto correttamente',
-                data: eventData
-            });
+            return res.status(200).json(boomEvent);
         } catch (error) {
-            console.error('Errore nel processing dei dati:', error);
-            return res.status(400).json({
-                status: 'error',
-                message: 'Errore nel processing dei dati',
-                error: error.message
-            });
+            console.error('Errore:', error);
+            return res.status(400).json({ error: error.message });
         }
-    } else {
-        res.status(405).send('Method Not Allowed');
     }
+
+    res.status(405).send('Method Not Allowed');
 };
