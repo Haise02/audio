@@ -1,5 +1,9 @@
-// Store per mantenere l'ultimo evento
-let lastEvent = null;
+// Store per mantenere gli ultimi eventi per tipo
+let lastEvents = {
+    boom: null,
+    appointment: null,
+    lead: null
+};
 
 module.exports = (req, res) => {
     // Set CORS headers
@@ -13,10 +17,14 @@ module.exports = (req, res) => {
     }
 
     if (req.method === 'GET') {
-        // Restituisci l'ultimo evento se disponibile
-        if (lastEvent) {
-            const event = lastEvent;
-            lastEvent = null; // Reset dopo la lettura
+        // Controlla se ci sono nuovi eventi
+        const events = Object.values(lastEvents).filter(event => event !== null);
+        
+        if (events.length > 0) {
+            // Prendi il primo evento disponibile
+            const event = events[0];
+            // Resetta quell'evento specifico
+            lastEvents[event.type] = null;
             return res.status(200).json(event);
         } else {
             return res.status(204).end(); // No Content
@@ -28,16 +36,19 @@ module.exports = (req, res) => {
             const eventData = req.body;
             console.log('Dati ricevuti:', eventData);
 
-            // Crea l'evento boom
-            const boomEvent = {
-                type: 'boom',
-                client: eventData.message || 'Cliente',
-                advisor: 'Advisor'
+            // Determina il tipo di evento dal payload
+            const eventType = eventData.type || 'boom'; // default a boom per retrocompatibilità
+            
+            // Crea l'evento con il tipo appropriato
+            const newEvent = {
+                type: eventType,
+                client: eventData.message || eventData.client || 'Cliente',
+                advisor: eventData.advisor || 'Advisor'
             };
 
-            // Salva l'evento per la prossima richiesta GET
-            lastEvent = boomEvent;
-            console.log('Evento salvato:', boomEvent);
+            // Salva l'evento nel tipo appropriato
+            lastEvents[eventType] = newEvent;
+            console.log('Evento salvato:', newEvent);
 
             return res.status(200).json(boomEvent);
         } catch (error) {
