@@ -86,14 +86,21 @@
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background-color: #4CAF50;
+      background-color: #006400;
       color: white;
-      padding: 15px;
-      border-radius: 5px;
-      font-size: 16px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      font-size: 24px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       text-align: center;
+      width: 80%;
+      max-width: 1000px;
+    }
+
+    #banner p {
+      margin: 10px 0;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -197,8 +204,7 @@
       document.getElementById('boom-count').innerText = count + 1;
       
       // Mostra il banner
-      let message = `Boom ${event.client} da: ${event.advisor}`;
-      showBanner(message);
+      showBanner(event);
       
       // Riproduci il suono solo se è stato inizializzato
       if (audioInitialized) {
@@ -209,15 +215,21 @@
     }
 
     // Funzione per mostrare il banner con il messaggio
-    function showBanner(message) {
-  const banner = document.getElementById('banner');
-  console.log('Mostrando il banner con il messaggio:', message);  // Aggiungi log per il messaggio
-  banner.innerText = message;  // Mostra l'intero messaggio nel banner
-  banner.style.display = 'block';  // Mostra il banner
-  setTimeout(() => {
-    banner.style.display = 'none';  // Nasconde il banner dopo 20 secondi
-  }, 20000); // 20 secondi
-}
+    function showBanner(event) {
+      const banner = document.getElementById('banner');
+      console.log('Mostrando il banner con il messaggio:', event);
+      
+      // Crea il contenuto HTML del banner con due righe
+      banner.innerHTML = `
+        <p>Nuova vendita e nuovo cliente portato a bordo! "${event.client}"</p>
+        <p>"${event.client}" è una nuova vita salvata da "${event.advisor}"</p>
+      `;
+      
+      banner.style.display = 'block';
+      setTimeout(() => {
+        banner.style.display = 'none';
+      }, 20000); // 20 secondi
+    }
 
     // Esegui la funzione per testare i dati dal webhook (questo sarà attivato da Zapier)
     fetchWebhookData();
