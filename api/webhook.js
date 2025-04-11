@@ -54,7 +54,7 @@ module.exports = (req, res) => {
             lastEvents[eventType] = newEvent;
             console.log('Evento salvato:', newEvent);
 
-            return res.status(200).json(boomEvent);
+            return res.status(200).json(newEvent);
         } catch (error) {
             console.error('Errore:', error);
             return res.status(400).json({ error: error.message });
