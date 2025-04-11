@@ -260,12 +260,18 @@
       const banner = document.getElementById('banner');
       console.log('Mostrando il banner con il messaggio:', event);
       
-      // Crea il contenuto HTML del banner con due righe
-      let bannerHTML = `<p>Nuova vendita e nuovo cliente portato a bordo! "${event.client}"</p>`;
+      // Crea il contenuto HTML del banner in base al tipo di evento
+      let bannerHTML = '';
       
-      // Aggiungi la seconda riga solo se c'è l'advisor
-      if (event.advisor) {
-        bannerHTML += `<p>"${event.client}" è una nuova vita salvata da "${event.advisor}"</p>`;
+      if (event.type === 'boom') {
+        bannerHTML = `<p>Nuova vendita e nuovo cliente portato a bordo! "${event.client}"</p>`;
+        if (event.advisor) {
+          bannerHTML += `<p>"${event.client}" è una nuova vita salvata da "${event.advisor}"</p>`;
+        }
+      } else if (event.type === 'appointment') {
+        bannerHTML = `<p>${event.client}</p>`;
+      } else {
+        bannerHTML = `<p>${event.client}</p>`;
       }
       
       banner.innerHTML = bannerHTML;
