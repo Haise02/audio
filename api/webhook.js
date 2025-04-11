@@ -42,9 +42,13 @@ module.exports = (req, res) => {
             // Crea l'evento con il tipo appropriato
             const newEvent = {
                 type: eventType,
-                client: eventData.message || eventData.client || 'Cliente',
-                advisor: eventData.advisor || 'Advisor'
+                client: eventData.message || eventData.client || 'Cliente'
             };
+            
+            // Aggiungi advisor solo se presente
+            if (eventData.advisor) {
+                newEvent.advisor = eventData.advisor;
+            }
 
             // Salva l'evento nel tipo appropriato
             lastEvents[eventType] = newEvent;
