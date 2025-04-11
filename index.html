@@ -167,7 +167,8 @@
         })
         .then(data => {
           console.log('Dati ricevuti dal webhook:', data);
-          if (data && data.type === 'boom') {
+          if (data) {
+            console.log('Tipo evento ricevuto:', data.type);
             updateDashboard(data);
           }
         })
@@ -236,7 +237,11 @@
       };
       
       const eventElements = elements[event.type];
-      if (!eventElements) return;
+      if (!eventElements) {
+        console.error('Tipo evento non riconosciuto:', event.type);
+        return;
+      }
+      console.log('Aggiornamento dashboard per evento tipo:', event.type);
       
       // Aggiorna i dati dell'evento
       if (eventElements.client) {
@@ -256,10 +261,17 @@
       showBanner(event);
       
       // Riproduci il suono appropriato se inizializzato
-      if (audioInitialized && sounds[event.type]) {
+      if (audioInitialized) {
         const sound = sounds[event.type];
-        sound.currentTime = 0;
-        sound.play().catch(e => console.error('Errore audio:', e));
+        if (sound) {
+          console.log('Riproduzione suono per evento:', event.type);
+          sound.currentTime = 0;
+          sound.play().catch(e => console.error('Errore audio:', e));
+        } else {
+          console.error('Nessun suono trovato per il tipo:', event.type);
+        }
+      } else {
+        console.log('Audio non ancora inizializzato');
       }
     }
 
