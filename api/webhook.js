@@ -39,16 +39,29 @@ module.exports = (req, res) => {
             // Determina il tipo di evento dal payload
             const eventType = eventData.type || 'boom'; // default a boom per retrocompatibilità
             
+            // Pulisci il messaggio rimuovendo URL e caratteri speciali
+            let cleanMessage = eventData.message || eventData.client || 'Cliente';
+            // Rimuovi URL
+            cleanMessage = cleanMessage.replace(/https?:\/\/[^\s]+/g, '').trim();
+            // Rimuovi caratteri speciali e righe vuote
+            cleanMessage = cleanMessage.split('\n')
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith('_') && !line.endsWith('_'))
+                .join(' ')
+                .trim();
+            
             // Crea l'evento con il tipo appropriato
             const newEvent = {
                 type: eventType,
-                client: eventData.message || eventData.client || 'Cliente'
+                client: cleanMessage
             };
             
             // Aggiungi advisor solo se presente
             if (eventData.advisor) {
                 newEvent.advisor = eventData.advisor;
             }
+            
+            console.log('Messaggio pulito:', cleanMessage);
 
             // Salva l'evento nel tipo appropriato
             lastEvents[eventType] = newEvent;
