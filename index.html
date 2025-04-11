@@ -113,7 +113,6 @@
   <!-- Audio per i diversi tipi di eventi -->
   <audio id="boomSound" src="slot-machine-coin-payout-1-188227.mp3"></audio>
   <audio id="appointmentSound" src="coin-recieved-230517.mp3"></audio>
-  <audio id="leadSound" src="lead.mp3"></audio>
   <button id="initAudio" style="position: fixed; top: 20px; right: 20px; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Inizializza Audio</button>
 
   <!-- Le altre informazioni sulla dashboard -->
@@ -181,27 +180,36 @@
     let audioInitialized = false;
     const sounds = {
       boom: document.getElementById('boomSound'),
-      appointment: document.getElementById('appointmentSound'),
-      lead: document.getElementById('leadSound')
+      appointment: document.getElementById('appointmentSound')
     };
 
     // Funzione per inizializzare l'audio
     document.getElementById('initAudio').addEventListener('click', async function() {
       try {
-        // Inizializza tutti i suoni
-        for (const sound of Object.values(sounds)) {
-          if (sound) {
-            await sound.play();
-            sound.pause();
-            sound.currentTime = 0;
-          }
+        // Inizializza il suono del boom
+        const boomSound = sounds.boom;
+        if (boomSound) {
+          await boomSound.play();
+          boomSound.pause();
+          boomSound.currentTime = 0;
         }
+
+        // Inizializza il suono degli appuntamenti
+        const appointmentSound = sounds.appointment;
+        if (appointmentSound) {
+          await appointmentSound.play();
+          appointmentSound.pause();
+          appointmentSound.currentTime = 0;
+        }
+
         audioInitialized = true;
         this.textContent = 'Audio Inizializzato';
         this.style.backgroundColor = '#666';
         this.disabled = true;
       } catch (e) {
         console.error('Errore inizializzazione audio:', e);
+        // In caso di errore, mostra un messaggio all'utente
+        alert('Errore nell\'inizializzazione dell\'audio. Riprova.');
       }
     });
 
