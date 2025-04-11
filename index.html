@@ -290,6 +290,8 @@
         }
       } else if (event.type === 'appointment') {
         bannerHTML = `<p>${event.client}</p>`;
+      } else if (event.type === 'lead') {
+        bannerHTML = `<p>"${event.client}" è un nuovo potenziale cliente</p>`;
       } else {
         bannerHTML = `<p>${event.client}</p>`;
       }
