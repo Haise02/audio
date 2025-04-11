@@ -105,6 +105,7 @@
 
   <!-- Audio per il suono boom -->
   <audio id="boomSound" src="slot-machine-coin-payout-1-188227.mp3"></audio>
+  <button id="initAudio" style="position: fixed; top: 20px; right: 20px; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Inizializza Audio</button>
 
   <!-- Le altre informazioni sulla dashboard -->
   <div class="dashboard">
@@ -168,6 +169,21 @@
         });
     }
 
+    let audioInitialized = false;
+
+    // Funzione per inizializzare l'audio
+    document.getElementById('initAudio').addEventListener('click', function() {
+      const boomSound = document.getElementById('boomSound');
+      boomSound.play().then(() => {
+        boomSound.pause();
+        boomSound.currentTime = 0;
+        audioInitialized = true;
+        this.textContent = 'Audio Inizializzato';
+        this.style.backgroundColor = '#666';
+        this.disabled = true;
+      }).catch(e => console.error('Errore inizializzazione audio:', e));
+    });
+
     // Funzione per aggiornare la dashboard con i dati ricevuti
     function updateDashboard(event) {
       console.log('Processando nuovo boom:', event);
@@ -184,10 +200,12 @@
       let message = `Boom ${event.client} da: ${event.advisor}`;
       showBanner(message);
       
-      // Riproduci il suono
-      const boomSound = document.getElementById('boomSound');
-      boomSound.currentTime = 0;
-      boomSound.play().catch(e => console.error('Errore audio:', e));
+      // Riproduci il suono solo se è stato inizializzato
+      if (audioInitialized) {
+        const boomSound = document.getElementById('boomSound');
+        boomSound.currentTime = 0;
+        boomSound.play().catch(e => console.error('Errore audio:', e));
+      }
     }
 
     // Funzione per mostrare il banner con il messaggio
